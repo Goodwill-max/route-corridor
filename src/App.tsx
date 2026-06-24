@@ -60,27 +60,31 @@ function App() {
       ([lng, lat]) => [lat, lng] as [number, number]
     );
 
+  const corridorCells = h3.polygonToCells(
+    corridor.geometry.coordinates as any,
+    9,
+    true
+  );
+
+  const corridorCellSet = new Set(corridorCells);
+
+  const hexagons = corridorCells.map((cell) =>
+    h3.cellToBoundary(cell, true)
+  );
+
+  console.log(corridorCells.length);
   
 
 
   const eligiblePickups = pickups.map((pickup) => {
-    const point = turf.point([
-      pickup[1], // lng
-      pickup[0], // lat
-    ]);
+    const pickupCell = h3.latLngToCell(
+      pickup[0],
+      pickup[1],
+      9
+      );
 
-    return turf.booleanPointInPolygon(
-      point,
-      corridor
-    );
+    return corridorCellSet.has(pickupCell);
     });
-
-  const pickupCells = pickups.map(
-    ([lat, lng]) =>
-      h3.latLngToCell(lat, lng, 9)
-    );
-
-    console.log(pickupCells);
 
   return (
     <div>
@@ -141,9 +145,6 @@ function App() {
        }}
        />
       ))}
-
-      
-
       <Polygon
         positions={corridorCoords}
         pathOptions={{
@@ -152,6 +153,17 @@ function App() {
         fillOpacity: 0.3,
       }}
     />
+    {hexagons.map((hex, idx) => (
+      <Polygon
+        key={idx}
+        positions={hex.map(([lng, lat]) => [lat, lng])}
+        pathOptions={{
+        color: "purple",
+        weight: 1,
+        fillOpacity: 0.1,
+      }}
+      />
+    ))}
     </MapContainer>
     </div>
   );
