@@ -55,6 +55,11 @@ function App() {
     units: "kilometers",
   });
 
+  if (!corridor) {
+    return <div>Failed to generate corridor.</div>;
+  }
+
+
   const corridorCoords =
     corridor.geometry.coordinates[0].map(
       ([lng, lat]) => [lat, lng] as [number, number]
