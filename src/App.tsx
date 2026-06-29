@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Polyline ,CircleMarker,Polygon, } from "react-leaflet";
+import { MapContainer, TileLayer, Polyline, CircleMarker, Polygon, } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import * as turf from "@turf/turf";
 import * as h3 from "h3-js";
@@ -6,40 +6,40 @@ import { useState } from "react";
 
 const routes: [number, number][][] = [
   [
-    [26.5123, 80.2329],
-    [26.5180, 80.2400],
-    [26.5240, 80.2480],
+    [28.6328, 77.2197], // Connaught Place
+    [28.6265, 77.2295],
+    [28.6205, 77.2380],
   ],
 
   [
-    [26.5100, 80.2280],
-    [26.5160, 80.2380],
-    [26.5220, 80.2550],
+    [28.6400, 77.2100],
+    [28.6320, 77.2220],
+    [28.6240, 77.2360],
   ],
 
   [
-    [26.5080, 80.2350],
-    [26.5150, 80.2450],
-    [26.5280, 80.2520],
+    [28.6180, 77.2050],
+    [28.6230, 77.2210],
+    [28.6310, 77.2400],
   ],
 ];
 
-  
+
 
 const pickups: [number, number][] = [
-  [26.514, 80.235],
-  [26.519, 80.242],
-  [26.521, 80.246],
-  [26.528, 80.252],
+  [28.6290, 77.2230],
+  [28.6260, 77.2310],
+  [28.6210, 77.2390],
+  [28.6370, 77.2140],
 ];
 
 
 
 const zone: [number, number][] = [
-  [26.505, 80.225],
-  [26.505, 80.260],
-  [26.535, 80.260],
-  [26.535, 80.225],
+  [28.6100, 77.1950],
+  [28.6100, 77.2500],
+  [28.6450, 77.2500],
+  [28.6450, 77.1950],
 ];
 
 function App() {
@@ -53,7 +53,7 @@ function App() {
 
   const corridor = turf.buffer(line, 0.35, {
     units: "kilometers",
-    });
+  });
 
   const corridorCoords =
     corridor.geometry.coordinates[0].map(
@@ -72,8 +72,6 @@ function App() {
     h3.cellToBoundary(cell, true)
   );
 
-  console.log(corridorCells.length);
-  
 
 
   const eligiblePickups = pickups.map((pickup) => {
@@ -81,90 +79,175 @@ function App() {
       pickup[0],
       pickup[1],
       9
-      );
+    );
 
     return corridorCellSet.has(pickupCell);
-    });
+  });
 
   return (
-    <div>
-    <button
-      onClick={() =>
-        setRouteIndex(
-        (routeIndex + 1) % routes.length
-        )
-      }
-      >
-      Next Route
-      </button>
-    <MapContainer
-      center={[26.5123, 80.2329]}
-      zoom={13}
+    <div
       style={{
+        position: "relative",
         height: "100vh",
-        width: "100vw",
+        width: "100%",
       }}
     >
-      <TileLayer
-        attribution="&copy; OpenStreetMap contributors"
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      <h1
+        style={{
+          position: "absolute",
+          top: "15px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 1000,
+          margin: 0,
+          color: "black",
+          fontSize: "30px",
+          fontWeight: "700",
+          letterSpacing: "1px",
+          textShadow: "0 2px 8px rgba(70, 70, 70, 0.6)",
+          pointerEvents: "none",
+        }}
+      >
+        Macro Rides
+      </h1>
+      <button
+        onClick={() =>
+          setRouteIndex(
+            (routeIndex + 1) % routes.length
+          )
+        }
+        style={{
+          position: "absolute",
+          top: "20px",
+          right: "20px",
+          zIndex: 1000,
+          padding: "10px 18px",
+          border: "none",
+          borderRadius: "8px",
+          background: "#2E7D32",
+          color: "white",
+          cursor: "pointer",
+        }}
+      >
+        Next Route
+      </button>
 
-      <Polygon
-        positions={zone}
-        pathOptions={{
-        color: "blue",
-        fillColor: "blue",
-        fillOpacity: 0.05,
-        weight: 2,
-      }}
-      />
+      <div
+        style={{
+          position: "absolute",
+          top: "20px",
+          left: "20px",
+          zIndex: 1000,
+          background: "white",
+          padding: "6px 10px",
+          borderRadius: "10px",
+          width: "100px",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+          fontSize: "11px",
+        }}
+      >
+        <div><b>🚗 Route:</b> {routeIndex + 1}</div>
+        <div><b>⬡ H3 Cells:</b> {corridorCells.length}</div>
+        <div>
+          <b>📍 Eligible:</b>{" "}
+          {eligiblePickups.filter(Boolean).length}/{pickups.length}
+        </div>
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          top: "130px",
+          left: "20px",
+          zIndex: 1000,
+          background: "white",
+          padding: "6px 8px",
+          borderRadius: "10px",
+          width: "150px",
+          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+          fontSize: "13px",
+        }}
+      >
+        <h4>Legend</h4>
 
-      <Polyline
-        positions={route}
-        pathOptions={{
-        color: "red",
-        weight: 5,
-      }}
-      />
-      {pickups.map((p, idx) => (
-        <CircleMarker
-          key={idx}
-          center={p}
-          radius={6}
+        <div>🔴 Driver Route</div>
+        <div>🟩 350m Corridor</div>
+        <div>🟪 H3 Cells</div>
+        <div>🟢 Eligible Pickup</div>
+        <div>⚫ Ineligible Pickup</div>
+        <div>🔵 Zone Boundary</div>
+      </div>
+      <MapContainer
+        center={[28.6286, 77.2295]}
+        zoom={13}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <TileLayer
+          attribution="&copy; OpenStreetMap contributors"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+
+        <Polygon
+          positions={zone}
           pathOptions={{
-          color: eligiblePickups[idx]
-            ? "green"
-            : "gray",
+            color: "blue",
+            fillColor: "blue",
+            fillOpacity: 0.05,
+            weight: 2,
+          }}
+        />
 
-          fillColor: eligiblePickups[idx]
-            ? "green"
-            : "gray",
+        <Polyline
+          positions={route}
+          pathOptions={{
+            color: "red",
+            weight: 5,
+          }}
+        />
+        {pickups.map((p, idx) => (
+          <CircleMarker
+            key={idx}
+            center={p}
+            radius={6}
+            pathOptions={{
+              color: eligiblePickups[idx]
+                ? "green"
+                : "gray",
 
-          fillOpacity: 1,
-       }}
-       />
-      ))}
-      <Polygon
-        positions={corridorCoords}
-        pathOptions={{
-        color: "green",
-        fillColor: "green",
-        fillOpacity: 0.3,
-      }}
-    />
-    {hexagons.map((hex, idx) => (
-      <Polygon
-        key={idx}
-        positions={hex.map(([lng, lat]) => [lat, lng])}
-        pathOptions={{
-        color: "purple",
-        weight: 1,
-        fillOpacity: 0.1,
-      }}
-      />
-    ))}
-    </MapContainer>
+              fillColor: eligiblePickups[idx]
+                ? "green"
+                : "gray",
+
+              fillOpacity: 1,
+            }}
+          />
+        ))}
+        <Polygon
+          positions={corridorCoords}
+          pathOptions={{
+            color: "green",
+            fillColor: "green",
+            fillOpacity: 0.3,
+          }}
+        />
+        {hexagons.map((hex, idx) => (
+          <Polygon
+            key={idx}
+            positions={hex.map(([lng, lat]) => [lat, lng])}
+            pathOptions={{
+              color: "purple",
+              weight: 1,
+              fillOpacity: 0.1,
+            }}
+          />
+        ))}
+
+      </MapContainer>
     </div>
   );
 
